@@ -21,6 +21,7 @@ namespace CfpParser
         string outputpath;
         bool testexisting;
         string existingfolder;
+        string tags;
         List<string> existingFileNames;
 
         public Parser(string filePath, string outputPath, bool checkIfExists, string existingFolder)
@@ -46,8 +47,9 @@ namespace CfpParser
 
                 GetConferenceTitleAndLocation(conference[0]);
                 GetClosingDate(conference[1]);
-                GetConferenceDates(conference[4]);
-                url = conference[5];
+                GetConferenceDates(conference[3]);
+                url = conference[4];
+                tags = conference[5];
                 CfpCollection.Add(GetFileName(), CreateCfp());
                 lineSkip += 7;
             }
@@ -55,6 +57,11 @@ namespace CfpParser
 
         public void WriteOutput()
         {
+            if(!Directory.Exists(outputpath))
+            {
+                Directory.CreateDirectory(outputpath);
+            }
+
             foreach (var key in CfpCollection.Keys)
             {
                 if (testexisting && CfpFileExists(key))
@@ -90,7 +97,8 @@ namespace CfpParser
                 callForPapersEnd = closingDate,
                 conferenceEnd = endDate,
                 conferenceStart = startDate,
-                url = url
+                url = url,
+                tags = tags
             };
         }
 
@@ -128,8 +136,10 @@ namespace CfpParser
 
                 var parts = dateString.Split(' ');
 
-                var month = DateTime.ParseExact(parts[0], "MMMM", CultureInfo.CurrentCulture).Month;
+                var month = DateTime.ParseExact(parts[0], "MMMM", CultureInfo.CurrentCulture).Month.ToString();
+                month = month.Length == 1 ? "0" + month : month; 
                 var date = parts[1].Replace(",", "");
+                date = date.Length == 1 ? "0" + date : date;
                 var year = parts[2];
                 closingDate = year + "-" + month + "-" + date;
             }

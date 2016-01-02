@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigR;
 
 namespace CfpParser
 {
@@ -10,8 +6,7 @@ namespace CfpParser
     {
         static void Main(string[] args)
         {
-            var existingFolder = @"C:\Users\matskasc\Documents\GitHub\callForPapers.github.io\_data\conferences";
-            var parser = new Parser(@"C:\temp\conferences.txt", @"C:\temp\confOutput", true, existingFolder);
+            var parser = new Parser(Config.Global.Get<string>("filePath"), Config.Global.Get<string>("outputPath"), true, Config.Global.Get<string>("existingFolder"));
             parser.ParseFile();
             parser.WriteOutput();
         }
