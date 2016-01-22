@@ -50,7 +50,12 @@ namespace CfpParser
                 GetConferenceDates(conference[3]);
                 url = conference[4];
                 tags = conference[5];
-                CfpCollection.Add(GetFileName(), CreateCfp());
+                var filename = GetFileName();
+                if (!CfpCollection.Keys.Contains(filename))
+                {
+                    CfpCollection.Add(filename, CreateCfp());
+                }
+
                 lineSkip += 7;
             }
         }
@@ -104,10 +109,20 @@ namespace CfpParser
 
         private void GetConferenceDates(string line)
         {
-            var parts = line.Replace("Conference Dates: ", "").Replace(",", "").Replace("to", "").Split(' ');
-            startDate = parts[2] + "-" + DateTime.ParseExact(parts[0], "MMMM", CultureInfo.CurrentCulture).Month + "-" + parts[1];
+            if (string.IsNullOrEmpty(line) || line == "Conference Dates:")
+            {
+                startDate = string.Empty;
+                endDate = string.Empty;
+                confYear = DateTime.Now.Year.ToString();
+                return;
+            }
+
+            var partArray = line.Replace("Conference Dates: ", "").Replace(",", "").Split(' ');
+            string[] parts = partArray.Where(t => !t.Equals("to")).ToArray();
+
+            startDate = new DateTime(int.Parse(parts[2]), DateTime.ParseExact(parts[0], "MMMM", CultureInfo.CurrentCulture).Month, int.Parse(parts[1])).ToString("yyyy-MM-dd");
             endDate = parts.Length == 6
-                    ? parts[6] + "-" + DateTime.ParseExact(parts[4], "MMMM", CultureInfo.CurrentCulture).Month + "-" + parts[5]
+                    ? new DateTime(int.Parse(parts[5]), DateTime.ParseExact(parts[3], "MMMM", CultureInfo.CurrentCulture).Month, int.Parse(parts[4])).ToString("yyyy-MM-dd")
                     : endDate = startDate;
 
             confYear = parts[2];
